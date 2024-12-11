@@ -1,0 +1,15 @@
+{
+	"id": "b6d08d82-7fef-4084-842d-c6822877878f",
+	"name": "CloudAndDevOps",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "http://192.168.30.4:3000",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2024-12-10T16:45:14.710Z",
+	"_postman_exported_using": "Postman/11.22.0"
+}

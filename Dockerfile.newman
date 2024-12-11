@@ -1,0 +1,8 @@
+FROM postman/newman:alpine
+
+# Másoljuk a teszthez postmanből exportált fájlokat
+COPY postman/onlineedu_test_postman.json /etc/newman/onlineedu_test_postman.json
+COPY postman/onlineedu_test_postman_env.json /etc/newman/onlineedu_test_postman_env.json
+
+# Indítás
+ENTRYPOINT ["newman", "run", "/etc/newman/onlineedu_test_postman.json", "--reporters", "cli,json", "--reporter-json-export", "/etc/reports/newman-report.json && tail -f /dev/null"]

@@ -1,0 +1,40 @@
+# Node.js alapú kép
+FROM node:20
+
+# Munkakönyvtár
+WORKDIR /usr/app
+
+# Eszközök telepítése
+RUN apt-get update && apt-get install -y \
+    git \
+ && rm -rf /var/lib/apt/lists/*
+
+# Projekt letöltés
+RUN git clone https://github.com/arnolddozsa/online-edu.git .
+
+# Munkakönyvtár
+WORKDIR /usr/app/backend
+
+# config másolása
+COPY db/config.json /usr/app/backend
+
+# nodejs csomagok
+RUN npm install
+
+# old ssl support
+RUN export NODE_OPTIONS=--openssl-legacy-provider && npm run build
+
+# környezeti változók bcrypt-hez
+ENV ACCESS_TOKEN_SECRET=swsh23hjddnns
+ENV ACCESS_TOKEN_LIFE=120
+ENV REFRESH_TOKEN_SECRET=dhw782wujnd99ahmmakhanjkajikhiwn2n
+ENV REFRESH_TOKEN_LIFE=86400
+
+# production environment
+ENV NODE_ENV=production
+ENV NODE_OPTIONS=--openssl-legacy-provider
+# Alkalmazás indítási parancs
+CMD ["npm", "start"]
+
+# port
+EXPOSE 3000

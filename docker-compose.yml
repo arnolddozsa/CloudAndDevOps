@@ -1,0 +1,115 @@
+
+services:
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      app-network:
+        ipv4_address: 192.168.30.2
+
+  mongo-import:
+    build:
+      context: .
+      dockerfile: Dockerfile.mongo
+    depends_on:
+      - mongodb
+    networks:
+      app-network:
+        ipv4_address: 192.168.30.3
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "3000:3000"
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/onlineedu
+    depends_on:
+      - mongodb
+    networks:
+      app-network:
+        ipv4_address: 192.168.30.4
+
+  bind9:
+    build:
+      context: .
+      dockerfile: Dockerfile.bind9
+    ports:
+      - "5300:53/tcp"
+      - "5300:53/udp"
+    volumes:
+      - ./bind_config:/etc/bind
+    networks:
+      app-network:
+        ipv4_address: 192.168.30.5
+    cap_add:
+      - NET_ADMIN
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "4000:4000"    # Frontend webes felület portja
+      - "9615:9615"    # PM2 webes felület portja
+    depends_on:
+      - backend
+    networks:
+      app-network:
+        ipv4_address: 192.168.30.6
+  
+  # frontend2:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.frontend
+  #   ports:
+  #     - "4001:4000"
+  #     - "9616:9615"    # PM2 webes felület portja
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     app-network:
+  #       ipv4_address: 192.168.30.7
+  
+  newman:
+    build: 
+      context: .
+      dockerfile: Dockerfile.newman
+    depends_on:
+      - backend
+    networks:
+      app-network:
+        ipv4_address: 192.168.30.8
+    dns:
+    - 192.168.30.5
+  
+  nginx:
+    build: 
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+    networks:
+      app-network:
+        ipv4_address: 192.168.30.9
+    dns:
+    - 192.168.30.5
+        
+
+ 
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.30.0/24
+
+volumes:
+  mongo-data:

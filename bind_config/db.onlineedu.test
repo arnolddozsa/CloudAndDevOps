@@ -1,0 +1,13 @@
+$TTL 604800
+@   IN  SOA onlineedu.test. admin.onlineedu.test. (
+                           1     ; Serial
+                      604800     ; Refresh
+                       86400     ; Retry
+                     2419200     ; Expire
+                      604800 )   ; Negative Cache TTL
+;
+@    IN  NS  ns.onlineedu.test.
+@    IN  A   192.168.30.9   ; This is the IP of the Angular container
+ns   IN  A   192.168.30.5   ; This is the IP of the Bind9 container
+www  IN  A   192.168.30.9   ; www subdomain points to Angular container
+api  IN  A   192.168.30.4   ; 'api' points to the backend container

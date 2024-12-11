@@ -1,0 +1,47 @@
+# Node.js alapú kép
+FROM node:18
+
+# Munkakönyvtár
+WORKDIR /usr/app
+
+# Git ufw iptables
+RUN apt-get update && apt-get install -y \
+    git \
+    ufw \
+    iptables
+
+# Tűzfal beállítások másolása
+COPY firewall_settings/angular_firewall.sh /firewall.sh
+
+# Futtathatóvá tenni a scriptet
+RUN chmod +x /firewall.sh
+
+# Projekt letöltés
+RUN git clone https://github.com/arnolddozsa/online-edu.git .
+
+# config másolása
+COPY backend/environment.ts /usr/app/src/environments
+
+# pm2 ecosystem config másolás
+COPY pm2/ecosystem.config.js /usr/app/ecosystem.config.js
+
+# pm2 telepítés
+RUN npm install pm2 -g
+
+# Node.js csomagok
+RUN npm install
+
+# Alkalmazás build
+RUN npm run build-prod
+
+# Portok
+EXPOSE 4200
+EXPOSE 9615
+
+# Alkalmazás indítási parancs
+#CMD ["npm", "start"]
+#CMD ["pm2-runtime", "start", "npm", "--", "start"]
+# CMD ["pm2-runtime", "start", "npm", "--", "start", "&&", "pm2", "web"]
+# CMD ["node", "dist/my-angular-app/server/server.mjs"]
+# CMD ["pm2-runtime", "node", "dist/my-angular-app/server/server.mjs", "&&", "pm2", "web"]
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]

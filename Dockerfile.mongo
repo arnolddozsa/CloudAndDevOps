@@ -1,0 +1,10 @@
+FROM mongo:6
+
+# Db Seed scriptek másolása
+COPY db /db
+
+# Futtatási jogok megadása
+RUN chmod +x /db/import.sh
+
+# Indításkor futtatja a seed scriptet
+CMD ["/bin/sh", "db/import.sh"]
